@@ -1,0 +1,8 @@
+SYNTHETIC QUOTATION B - RFQ-202
+Supplier: Blue Finch Cooling
+Item: DF-65 enclosure fan, 24 VDC, IP65, 120 mm square.
+For 200 units: unit price EUR 6.90, goods subtotal EUR 1,380.
+Freight to Test Warehouse 7: EUR 110. Goods plus freight: EUR 1,490.
+Confirmed receipt date at Test Warehouse 7: 2026-12-04.
+Expedited delivery might be available on request, but no expedited price or earlier receipt date is offered.
+Import duties and taxes are excluded.

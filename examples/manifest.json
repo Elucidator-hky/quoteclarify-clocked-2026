@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "model_input_allowlist_only": true,
+  "cases": [
+    {
+      "id": "case-01",
+      "rfq": "case-01/rfq.txt",
+      "quotations": [
+        "case-01/quote-a.txt",
+        "case-01/quote-b.txt"
+      ]
+    },
+    {
+      "id": "case-02",
+      "rfq": "case-02/rfq.txt",
+      "quotations": [
+        "case-02/quote-a.txt",
+        "case-02/quote-b.txt"
+      ]
+    },
+    {
+      "id": "case-03",
+      "rfq": "case-03/rfq.txt",
+      "quotations": [
+        "case-03/quote-a.txt",
+        "case-03/quote-b.txt"
+      ]
+    }
+  ]
+}

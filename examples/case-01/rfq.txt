@@ -1,0 +1,10 @@
+SYNTHETIC RFQ - no real buyer, supplier or transaction.
+RFQ ID: RFQ-101
+Buyer: Cairn River Test Works
+Item: PT-24 pressure transducer, 0-10 bar, 24 VDC, 4-20 mA, G1/4 thread.
+Required quantity: 500 units.
+Comparison currency: USD. No exchange rate has been supplied.
+Budget: USD 5,000 for goods plus delivery to Test Warehouse 4; import duties and taxes are outside this comparison.
+Required receipt date at Test Warehouse 4: 2026-12-04.
+No deposit or purchase order has yet been placed. Do not assume a payment date.
+Please state delivery cost and receipt timing separately from manufacturing or dispatch timing.

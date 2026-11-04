@@ -1,0 +1,8 @@
+SYNTHETIC QUOTATION B - RFQ-101
+Supplier: Birch Gauge Supply
+Item: PT-24 pressure transducer, 0-10 bar, 24 VDC, 4-20 mA, G1/4 thread.
+Quantity: 500 units. Unit price: EUR 7.90. Goods subtotal: EUR 3,950.
+Freight to Test Warehouse 4: EUR 180. Goods plus delivery: EUR 4,130.
+Receipt at Test Warehouse 4: 16 calendar days after the deposit clears.
+Deposit terms: 30% before production. No deposit-cleared date is confirmed.
+Import duties and taxes are excluded. No USD conversion rate is offered.

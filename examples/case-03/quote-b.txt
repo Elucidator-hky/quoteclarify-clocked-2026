@@ -1,0 +1,7 @@
+SYNTHETIC QUOTATION B - RFQ-303
+Supplier: Bracken Flow Tools
+Item: DP-22 dosing pump kit, 24 VDC, 2 L/min, including a 12 mm hose adaptor.
+30 kits at USD 175 each. Goods subtotal USD 5,250. Freight USD 200. Goods plus freight USD 5,450.
+Receipt at Test Warehouse 9: 2026-12-10, provided the purchase order is received by 2026-11-20.
+This delivery commitment is conditional on that purchase-order deadline; it does not confirm that an order has already been received.
+Import duties and taxes are excluded.

@@ -1,0 +1,9 @@
+SYNTHETIC QUOTATION A - RFQ-303
+Supplier: Alder Metering
+HISTORY ONLY - Rev 1 dated 2026-11-01:
+30 DP-22 kits at USD 180 each, plus USD 200 freight. Receipt at destination within 10 calendar days of purchase-order receipt.
+CURRENT - Rev 2 dated 2026-11-03: This revision supersedes all price and timing terms in Rev 1.
+Item: DP-22 dosing pump kit, 24 VDC, 2 L/min, including a 12 mm hose adaptor.
+30 kits at USD 172 each. Goods subtotal USD 5,160. Freight USD 230. Goods plus freight USD 5,390.
+Dispatch: 7 business days after order confirmation. Transit time and destination receipt date are not confirmed.
+Import duties and taxes are excluded.

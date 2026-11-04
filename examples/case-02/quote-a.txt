@@ -1,0 +1,8 @@
+SYNTHETIC QUOTATION A - RFQ-202
+Supplier: Amber Drive Supplies
+Item: DF-65 enclosure fan, 24 VDC, IP65, 120 mm square.
+Price tiers: 1-99 units USD 8.90 each; 100-249 units USD 7.80 each; 250 or more units USD 7.20 each.
+For the requested 200 units: unit price USD 7.80, goods subtotal USD 1,560.
+Freight to Test Warehouse 7: USD 90. Goods plus freight: USD 1,650.
+Confirmed receipt date at Test Warehouse 7: 2026-12-01.
+Import duties and taxes are excluded.

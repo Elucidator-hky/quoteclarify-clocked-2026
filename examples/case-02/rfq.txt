@@ -1,0 +1,10 @@
+SYNTHETIC RFQ - no real buyer, supplier or transaction.
+RFQ ID: RFQ-202
+Buyer: Copper Meadow Test Works
+Item: DF-65 enclosure fan, 24 VDC, IP65, 120 mm square.
+Required quantity: 200 units. Do not change this quantity to obtain a discount tier.
+Comparison currency: USD.
+User-supplied comparison rate: 1 EUR = 1.10 USD, for this comparison only; this is not a market-rate lookup.
+Budget: USD 1,800 including freight to Test Warehouse 7; import duties and taxes are excluded.
+Required receipt date at Test Warehouse 7: no later than 2026-12-02.
+Evaluate the quoted receipt dates as written; no expedited service has been agreed.

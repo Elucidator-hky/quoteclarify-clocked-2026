@@ -1,0 +1,9 @@
+SYNTHETIC RFQ - no real buyer, supplier or transaction.
+RFQ ID: RFQ-303
+Buyer: Drift Brook Test Works
+Item: DP-22 dosing pump kit, 24 VDC, 2 L/min, including a 12 mm hose adaptor.
+Required quantity: 30 kits. Budget: USD 6,000 including freight to Test Warehouse 9; import duties and taxes excluded.
+Required receipt date at Test Warehouse 9: no later than 2026-12-12.
+Planning assumption supplied by the buyer: purchase order will be received by the supplier on 2026-11-18. This has not happened yet.
+Supplier A's Rev 2 explicitly supersedes Rev 1. Compare only the current terms; retain old text as history.
+No supplier-specific business-day or holiday calendar has been supplied.
