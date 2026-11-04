@@ -7,6 +7,8 @@ import math
 import re
 import uuid
 
+from client import ApiError
+
 
 class InputError(ValueError):
     pass
@@ -261,6 +263,7 @@ def analyze_case(request, client, on_progress=None, base=None):
             on_progress(endpoint, meta)
         return response["data"]
 
+    focus_unavailable = False
     if base is not None:
         if base["inputDigest"] != result["inputDigest"]:
             raise InputError("A changed source or focus requires a new analysis.")
@@ -281,12 +284,23 @@ def analyze_case(request, client, on_progress=None, base=None):
             term_findings, term_questions = make_questions(review, docs[0], document)
             result["findings"].extend(term_findings)
             result["clarifications"].extend(term_questions)
-        ranked = call("rerank", {"query": value["focus"], "documents": [
-            {"id": d["id"], "title": d["title"], "text": d["text"]} for d in docs],
-            "context": {"task": "Buyer review of the supplied RFQ and quotations; focus only, not a supplier selection."}})
-        result["rerank"] = normalize_rerank(ranked, value, document_map)
+        from focus import passages_for, request_for as focus_request, normalize as normalize_focus
+        passages = passages_for(document_map)
+        try:
+            ranked = call("rerank", focus_request(value["focus"], passages, document_map))
+            result["rerank"] = normalize_focus(ranked, value["focus"], document_map, passages)
+        except (ApiError, ValueError) as error:
+            focus_unavailable = True
+            result["rerank"] = {"status": "unavailable", "query": value["focus"],
+                "scope": "source_sections", "results": [],
+                "message": "Focus passages are unavailable. Read the complete sources; no source, question or supplier has been removed.",
+                "errorCode": getattr(error, "code", "invalid_focus_result")}
+            result["limitations"].append(result["rerank"]["message"])
     memo = value.get("draftSummary", "")
-    if memo.strip():
+    if memo.strip() and focus_unavailable:
+        result["grounding"].update(text=memo,
+            message="The source-focus request did not complete. Your note was not checked; use Verify this note separately when the connection is ready.")
+    elif memo.strip():
         grounded = call("grounding", {"documents": api_documents, "answer": memo,
             "question": "Is this buyer memo supported by the supplied RFQ and supplier quotations, with correct supplier, scope, units, currency and conditions?",
             "instructions": "Check each factual assertion independently. Do not treat a buyer requirement as a supplier commitment. Attribute suppliers and versions precisely. Missing terms are not zero costs or promises. A conditional delivery period does not establish a calendar arrival date. Do not infer lowest landed cost or a purchase recommendation.",
