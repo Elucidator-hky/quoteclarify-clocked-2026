@@ -51,8 +51,8 @@ class ClockedClient:
                 "remainingCredits": max(0, self.limit - used)}
 
     def call(self, endpoint, payload):
-        if endpoint not in ("compare", "rerank", "grounding"):
-            raise ApiError("unsupported_endpoint", "This application uses only Compare, Rerank and Verify.")
+        if endpoint not in ("compare", "rerank", "grounding", "fill"):
+            raise ApiError("unsupported_endpoint", "This application uses only Compare, Rerank, Fill and Verify.")
         if not self.configured:
             raise ApiError("not_configured", "The backend has no local Clocked API key. See setup instructions.")
         encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))

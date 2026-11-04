@@ -233,7 +233,7 @@ def analyze_case(request, client, on_progress=None, base=None):
     document_map = {d["id"]: d for d in docs}
     result = {"analysisId": str(uuid.uuid4()), "inputDigest": input_digest(value),
         "createdAt": datetime.datetime.now(datetime.timezone.utc).isoformat(), "input": value,
-        "documents": docs, "comparisons": [], "findings": [], "clarifications": [],
+        "documents": docs, "comparisons": [], "findings": [], "clarifications": [], "termReviews": [],
         "rerank": {"status": "not_requested", "query": value["focus"], "results": []},
         "grounding": {"status": "not_requested", "text": "", "verdict": None, "grounded": None, "claims": []},
         "usage": {"newCredits": 0, "referenceCostUsd": 0, "calls": []},
@@ -264,12 +264,23 @@ def analyze_case(request, client, on_progress=None, base=None):
     if base is not None:
         if base["inputDigest"] != result["inputDigest"]:
             raise InputError("A changed source or focus requires a new analysis.")
-        for key in ("comparisons", "findings", "clarifications", "rerank"):
-            result[key] = copy.deepcopy(base[key])
+        for key in ("comparisons", "findings", "clarifications", "rerank", "termReviews"):
+            result[key] = copy.deepcopy(base.get(key, []))
     else:
         compared = call("compare", {"documents": api_documents, "evidence": "all",
             "instructions": "These are a buyer RFQ and two supplier quotations for a purchase. Surface differences in price basis, currency, unit, model, delivery triggers, dates, payment, exclusions and scope that need human clarification. A requirement versus a different offer or an older version is not two simultaneously true conflicting facts. Preserve document attribution; do not assume acceptance, normalize units/currency, invent missing charges, or recommend a supplier."})
         result["comparisons"], result["findings"], result["clarifications"] = normalize_comparison(compared, document_map)
+        # Compare overlap is not agreement. Read ordinary quoted conditions independently.
+        from terms import make_questions, normalize, request_for
+        for document in docs:
+            if document["role"] != "quote":
+                continue
+            term_data = call("fill", request_for(document))
+            review = normalize(term_data, document, document_map)
+            result["termReviews"].append(review)
+            term_findings, term_questions = make_questions(review, docs[0], document)
+            result["findings"].extend(term_findings)
+            result["clarifications"].extend(term_questions)
         ranked = call("rerank", {"query": value["focus"], "documents": [
             {"id": d["id"], "title": d["title"], "text": d["text"]} for d in docs],
             "context": {"task": "Buyer review of the supplied RFQ and quotations; focus only, not a supplier selection."}})
