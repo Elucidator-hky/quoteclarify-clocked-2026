@@ -2,6 +2,8 @@
 
 Turn a buyer RFQ and two supplier quotations into source-linked clarification questions. Compare reports document relationships, Fill reads verbatim commercial conditions, Rerank focuses the original documents, and Verify checks an editable buyer memo. This is a review aid: no supplier ranking, landed-cost calculation, currency conversion or purchase approval.
 
+**[Watch the recorded workflow — 2m12s](https://elucidator-hky.github.io/quoteclarify-clocked-2026/).** Synthetic quotations, scripted user actions and actual Clocked API responses are shown with English recording captions and no audio. The video shows questions from an empty memo, original source passages, rejected and supported note claims, the real downloaded brief and a source edit invalidating the old result. The player is a recording; local setup follows below.
+
 All core code was started for the Clocked Build Challenge on 4 November 2026. It does not reuse earlier hackathon application cores. The examples are original synthetic materials prepared for this project; they do not describe real suppliers, transactions or employer data.
 
 ## Run locally
