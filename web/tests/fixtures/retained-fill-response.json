@@ -1,0 +1,707 @@
+{
+  "jobId": "2b45951e-752f-47de-a761-b6b54b683725",
+  "status": "succeeded",
+  "stage": "complete",
+  "progress": [
+    {
+      "endpoint": "compare",
+      "requestId": "a0e4f72e-c5f4-4bd9-8afa-500bdfb0eba7",
+      "transport": "cache",
+      "credits": 0,
+      "referenceCostUsd": 0,
+      "elapsedMs": 0,
+      "costBasis": "reference",
+      "modelMs": "201.632517",
+      "originalAccountCredits": 9
+    },
+    {
+      "endpoint": "fill",
+      "requestId": "b685056e-a5be-4faf-bb02-51fc07be8b16",
+      "transport": "cache",
+      "credits": 0,
+      "referenceCostUsd": 0,
+      "elapsedMs": 0,
+      "costBasis": "reference",
+      "modelMs": "95.824035",
+      "originalAccountCredits": 4
+    },
+    {
+      "endpoint": "fill",
+      "requestId": "eccc03b4-7394-4897-8e9a-2237cc5a7e1b",
+      "transport": "cache",
+      "credits": 0,
+      "referenceCostUsd": 0,
+      "elapsedMs": 0,
+      "costBasis": "reference",
+      "modelMs": "125.827487",
+      "originalAccountCredits": 6
+    },
+    {
+      "endpoint": "rerank",
+      "requestId": "717e86bc-247f-4ee8-a59e-defd2b85d0ea",
+      "transport": "cache",
+      "credits": 0,
+      "referenceCostUsd": 0,
+      "elapsedMs": 0,
+      "costBasis": "reference",
+      "modelMs": "33.652191",
+      "originalAccountCredits": 2
+    }
+  ],
+  "error": null,
+  "result": {
+    "analysisId": "2bbb36c0-a4e4-4073-864a-ffd721c0f2b5",
+    "inputDigest": "d85538438518f867df7b1046c276e65b4c77978e61babd4742c670c08080f216",
+    "createdAt": "2026-11-04T02:59:02.577564+00:00",
+    "input": {
+      "rfq": {
+        "id": "rfq",
+        "title": "Buyer RFQ",
+        "text": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates."
+      },
+      "quotes": [
+        {
+          "id": "quote-a",
+          "title": "Quotation A",
+          "supplier": "Zinc Orange",
+          "text": "SYNTHETIC supplier Zinc Orange, model PS-6, quantity 120. Unit price USD 5.80; goods USD 696; packing USD 24; subtotal USD 720. Freight to Durban is excluded and not yet priced. Production takes 10 calendar days after a 40% deposit clears. Transit time and destination receipt date are not committed."
+        },
+        {
+          "id": "quote-b",
+          "title": "Quotation B",
+          "supplier": "Orchid",
+          "text": "SYNTHETIC supplier Orchid, model PS-6, quantity 120. Goods USD 732 plus freight USD 16: total USD 748 DAP Durban, excluding import duties. Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18. No deposit has cleared."
+        }
+      ],
+      "focus": "Do the quotations establish delivered cost and receipt by 2026-12-05? What should each supplier clarify?",
+      "draftSummary": ""
+    },
+    "documents": [
+      {
+        "id": "rfq",
+        "title": "Buyer RFQ",
+        "text": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+        "role": "rfq",
+        "supplier": null
+      },
+      {
+        "id": "quote-a",
+        "title": "Quotation A",
+        "supplier": "Zinc Orange",
+        "text": "SYNTHETIC supplier Zinc Orange, model PS-6, quantity 120. Unit price USD 5.80; goods USD 696; packing USD 24; subtotal USD 720. Freight to Durban is excluded and not yet priced. Production takes 10 calendar days after a 40% deposit clears. Transit time and destination receipt date are not committed.",
+        "role": "quote"
+      },
+      {
+        "id": "quote-b",
+        "title": "Quotation B",
+        "supplier": "Orchid",
+        "text": "SYNTHETIC supplier Orchid, model PS-6, quantity 120. Goods USD 732 plus freight USD 16: total USD 748 DAP Durban, excluding import duties. Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18. No deposit has cleared.",
+        "role": "quote"
+      }
+    ],
+    "comparisons": [
+      {
+        "id": "pair-0",
+        "a": "rfq",
+        "b": "quote-a",
+        "relation": "overlapping",
+        "related": 0.9968,
+        "probabilities": {
+          "same": 0.004,
+          "overlapping": 0.9804,
+          "conflicting": 0.0124,
+          "unrelated": 0.0032
+        },
+        "findingIds": []
+      },
+      {
+        "id": "pair-1",
+        "a": "rfq",
+        "b": "quote-b",
+        "relation": "overlapping",
+        "related": 0.9926,
+        "probabilities": {
+          "same": 0.0076,
+          "overlapping": 0.9433,
+          "conflicting": 0.0417,
+          "unrelated": 0.0074
+        },
+        "findingIds": []
+      },
+      {
+        "id": "pair-2",
+        "a": "quote-a",
+        "b": "quote-b",
+        "relation": "overlapping",
+        "related": 0.9964,
+        "probabilities": {
+          "same": 0.0055,
+          "overlapping": 0.9669,
+          "conflicting": 0.024,
+          "unrelated": 0.0036
+        },
+        "findingIds": []
+      }
+    ],
+    "findings": [
+      {
+        "id": "term-quote-a-freight",
+        "pairId": null,
+        "kind": "freight",
+        "label": "Terms to confirm",
+        "a": {
+          "documentId": "rfq",
+          "quote": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+          "start": 0,
+          "end": 308,
+          "integrity": "exact"
+        },
+        "b": {
+          "documentId": "quote-a",
+          "quote": "Freight to Durban is excluded and not yet priced.",
+          "start": 128,
+          "end": 177,
+          "integrity": "exact"
+        },
+        "sourceIntegrity": "exact",
+        "questionIds": [
+          "term-quote-a-freight-question"
+        ],
+        "origin": "fill"
+      },
+      {
+        "id": "term-quote-a-receipt",
+        "pairId": null,
+        "kind": "receipt",
+        "label": "Terms to confirm",
+        "a": {
+          "documentId": "rfq",
+          "quote": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+          "start": 0,
+          "end": 308,
+          "integrity": "exact"
+        },
+        "b": {
+          "documentId": "quote-a",
+          "quote": "Transit time and destination receipt date are not committed.",
+          "start": 240,
+          "end": 300,
+          "integrity": "exact"
+        },
+        "sourceIntegrity": "exact",
+        "questionIds": [
+          "term-quote-a-receipt-question"
+        ],
+        "origin": "fill"
+      },
+      {
+        "id": "term-quote-a-payment_condition",
+        "pairId": null,
+        "kind": "payment_condition",
+        "label": "Terms to confirm",
+        "a": {
+          "documentId": "rfq",
+          "quote": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+          "start": 0,
+          "end": 308,
+          "integrity": "exact"
+        },
+        "b": {
+          "documentId": "quote-a",
+          "quote": "Production takes 10 calendar days after a 40% deposit clears.",
+          "start": 178,
+          "end": 239,
+          "integrity": "exact"
+        },
+        "sourceIntegrity": "exact",
+        "questionIds": [
+          "term-quote-a-payment_condition-question"
+        ],
+        "origin": "fill"
+      },
+      {
+        "id": "term-quote-b-receipt",
+        "pairId": null,
+        "kind": "receipt",
+        "label": "Terms to confirm",
+        "a": {
+          "documentId": "rfq",
+          "quote": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+          "start": 0,
+          "end": 308,
+          "integrity": "exact"
+        },
+        "b": {
+          "documentId": "quote-b",
+          "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+          "start": 139,
+          "end": 217,
+          "integrity": "exact"
+        },
+        "sourceIntegrity": "exact",
+        "questionIds": [
+          "term-quote-b-receipt-question"
+        ],
+        "origin": "fill"
+      },
+      {
+        "id": "term-quote-b-payment_condition",
+        "pairId": null,
+        "kind": "payment_condition",
+        "label": "Terms to confirm",
+        "a": {
+          "documentId": "rfq",
+          "quote": "SYNTHETIC acceptance case: no real transaction. Buy 120 food-grade pump seals, model PS-6. Budget: USD 800 including delivery to Durban, excluding import duties. Required receipt date: 2026-12-05. No purchase order or deposit has been issued. Please distinguish production, dispatch and actual receipt dates.",
+          "start": 0,
+          "end": 308,
+          "integrity": "exact"
+        },
+        "b": {
+          "documentId": "quote-b",
+          "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+          "start": 139,
+          "end": 217,
+          "integrity": "exact"
+        },
+        "sourceIntegrity": "exact",
+        "questionIds": [
+          "term-quote-b-payment_condition-question"
+        ],
+        "origin": "fill"
+      }
+    ],
+    "clarifications": [
+      {
+        "id": "term-quote-a-freight-question",
+        "supplierId": "quote-a",
+        "supplier": "Zinc Orange",
+        "findingId": "term-quote-a-freight",
+        "text": "Your quotation states: “Freight to Durban is excluded and not yet priced.” Please quote or confirm freight to the RFQ destination and a complete delivered total for the requested quantity, identifying included charges and exclusions. An unpriced charge cannot be treated as zero.",
+        "sources": [
+          {
+            "documentId": "quote-a",
+            "quote": "Freight to Durban is excluded and not yet priced.",
+            "start": 128,
+            "end": 177,
+            "integrity": "exact"
+          }
+        ],
+        "status": "needs_confirmation",
+        "origin": "fill",
+        "term": "freight"
+      },
+      {
+        "id": "term-quote-a-receipt-question",
+        "supplierId": "quote-a",
+        "supplier": "Zinc Orange",
+        "findingId": "term-quote-a-receipt",
+        "text": "Your quotation states: “Transit time and destination receipt date are not committed.” “Production takes 10 calendar days after a 40% deposit clears.” Please confirm an actual destination receipt date against our RFQ deadline, separately from production/dispatch time. State the payment or other conditions and whether that date remains achievable given when those conditions can actually be fulfilled.",
+        "sources": [
+          {
+            "documentId": "quote-a",
+            "quote": "Transit time and destination receipt date are not committed.",
+            "start": 240,
+            "end": 300,
+            "integrity": "exact"
+          },
+          {
+            "documentId": "quote-a",
+            "quote": "Production takes 10 calendar days after a 40% deposit clears.",
+            "start": 178,
+            "end": 239,
+            "integrity": "exact"
+          }
+        ],
+        "status": "needs_confirmation",
+        "origin": "fill",
+        "term": "receipt"
+      },
+      {
+        "id": "term-quote-a-payment_condition-question",
+        "supplierId": "quote-a",
+        "supplier": "Zinc Orange",
+        "findingId": "term-quote-a-payment_condition",
+        "text": "Your quotation states: “Production takes 10 calendar days after a 40% deposit clears.” “Transit time and destination receipt date are not committed.” Please confirm the deposit/payment deadline and clearance trigger behind this offer, whether it has been fulfilled, and how the offered receipt date changes if it has not. We are not treating a conditional date as an unconditional commitment.",
+        "sources": [
+          {
+            "documentId": "quote-a",
+            "quote": "Production takes 10 calendar days after a 40% deposit clears.",
+            "start": 178,
+            "end": 239,
+            "integrity": "exact"
+          },
+          {
+            "documentId": "quote-a",
+            "quote": "Transit time and destination receipt date are not committed.",
+            "start": 240,
+            "end": 300,
+            "integrity": "exact"
+          }
+        ],
+        "status": "needs_confirmation",
+        "origin": "fill",
+        "term": "payment_condition"
+      },
+      {
+        "id": "term-quote-b-receipt-question",
+        "supplierId": "quote-b",
+        "supplier": "Orchid",
+        "findingId": "term-quote-b-receipt",
+        "text": "Your quotation states: “Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.” “No deposit has cleared.” Please confirm an actual destination receipt date against our RFQ deadline, separately from production/dispatch time. State the payment or other conditions and whether that date remains achievable given when those conditions can actually be fulfilled. The bounded source read may not include every condition; please confirm any additional conditions in the original quotation.",
+        "sources": [
+          {
+            "documentId": "quote-b",
+            "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+            "start": 139,
+            "end": 217,
+            "integrity": "exact"
+          },
+          {
+            "documentId": "quote-b",
+            "quote": "No deposit has cleared.",
+            "start": 218,
+            "end": 241,
+            "integrity": "exact"
+          }
+        ],
+        "status": "needs_confirmation",
+        "origin": "fill",
+        "term": "receipt"
+      },
+      {
+        "id": "term-quote-b-payment_condition-question",
+        "supplierId": "quote-b",
+        "supplier": "Orchid",
+        "findingId": "term-quote-b-payment_condition",
+        "text": "Your quotation states: “Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.” “No deposit has cleared.” Please confirm the deposit/payment deadline and clearance trigger behind this offer, whether it has been fulfilled, and how the offered receipt date changes if it has not. We are not treating a conditional date as an unconditional commitment. The bounded source read may not include every condition; please confirm any additional conditions in the original quotation.",
+        "sources": [
+          {
+            "documentId": "quote-b",
+            "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+            "start": 139,
+            "end": 217,
+            "integrity": "exact"
+          },
+          {
+            "documentId": "quote-b",
+            "quote": "No deposit has cleared.",
+            "start": 218,
+            "end": 241,
+            "integrity": "exact"
+          }
+        ],
+        "status": "needs_confirmation",
+        "origin": "fill",
+        "term": "payment_condition"
+      }
+    ],
+    "termReviews": [
+      {
+        "documentId": "quote-a",
+        "supplier": "Zinc Orange",
+        "origin": "fill",
+        "clauses": {
+          "freight_clause": [
+            {
+              "documentId": "quote-a",
+              "quote": "Freight to Durban is excluded and not yet priced.",
+              "start": 128,
+              "end": 177,
+              "integrity": "exact"
+            }
+          ],
+          "receipt_clause": [
+            {
+              "documentId": "quote-a",
+              "quote": "Transit time and destination receipt date are not committed.",
+              "start": 240,
+              "end": 300,
+              "integrity": "exact"
+            }
+          ],
+          "payment_clause": [
+            {
+              "documentId": "quote-a",
+              "quote": "Production takes 10 calendar days after a 40% deposit clears.",
+              "start": 178,
+              "end": 239,
+              "integrity": "exact"
+            }
+          ],
+          "production_clause": [
+            {
+              "documentId": "quote-a",
+              "quote": "Production takes 10 calendar days after a 40% deposit clears.",
+              "start": 178,
+              "end": 239,
+              "integrity": "exact"
+            }
+          ],
+          "version_clause": []
+        },
+        "signals": {
+          "freight_status": "excluded_or_unpriced",
+          "receipt_status": "not_committed",
+          "unmet_payment_condition": true,
+          "version_attention": false
+        },
+        "signalReadouts": {
+          "freight_status": {
+            "value": "excluded_or_unpriced",
+            "confidence": 0.98,
+            "probabilities": {
+              "included_and_priced": 0.0035345408042818777,
+              "excluded_or_unpriced": 0.986469612195957,
+              "not_established": 0.009995846999761153
+            }
+          },
+          "receipt_status": {
+            "value": "not_committed",
+            "confidence": 0.851,
+            "probabilities": {
+              "firm_receipt_date": 0.010983736933620562,
+              "conditional_receipt": 0.012159836104636826,
+              "not_committed": 0.8880071431432098,
+              "not_established": 0.08884928381853278
+            }
+          },
+          "unmet_payment_condition": {
+            "value": true,
+            "confidence": 0.983,
+            "probabilities": {
+              "yes": 0.9916887596465842,
+              "no": 0.008311240353415794
+            }
+          },
+          "version_attention": {
+            "value": false,
+            "confidence": 0.993,
+            "probabilities": {
+              "yes": 0.0035648906276993797,
+              "no": 0.9964351093723006
+            }
+          }
+        },
+        "warnings": [
+          {
+            "field": "version_clause",
+            "code": "not_located",
+            "reason": null
+          }
+        ]
+      },
+      {
+        "documentId": "quote-b",
+        "supplier": "Orchid",
+        "origin": "fill",
+        "clauses": {
+          "freight_clause": [
+            {
+              "documentId": "quote-b",
+              "quote": "Goods USD 732 plus freight USD 16: total USD 748 DAP Durban, excluding import duties.",
+              "start": 53,
+              "end": 138,
+              "integrity": "exact"
+            }
+          ],
+          "receipt_clause": [
+            {
+              "documentId": "quote-b",
+              "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+              "start": 139,
+              "end": 217,
+              "integrity": "exact"
+            }
+          ],
+          "payment_clause": [
+            {
+              "documentId": "quote-b",
+              "quote": "Receipt by 2026-12-04 is offered only if the 40% deposit clears by 2026-11-18.",
+              "start": 139,
+              "end": 217,
+              "integrity": "exact"
+            },
+            {
+              "documentId": "quote-b",
+              "quote": "No deposit has cleared.",
+              "start": 218,
+              "end": 241,
+              "integrity": "exact"
+            }
+          ],
+          "production_clause": [],
+          "version_clause": []
+        },
+        "signals": {
+          "freight_status": "included_and_priced",
+          "receipt_status": "conditional_receipt",
+          "unmet_payment_condition": true,
+          "version_attention": false
+        },
+        "signalReadouts": {
+          "freight_status": {
+            "value": "included_and_priced",
+            "confidence": 0.868,
+            "probabilities": {
+              "included_and_priced": 0.9117331824085484,
+              "excluded_or_unpriced": 0.04972900663854545,
+              "not_established": 0.038537810952906155
+            }
+          },
+          "receipt_status": {
+            "value": "conditional_receipt",
+            "confidence": 0.948,
+            "probabilities": {
+              "firm_receipt_date": 0.005055504190841637,
+              "conditional_receipt": 0.9608306056779512,
+              "not_committed": 0.02597869975186419,
+              "not_established": 0.008135190379342969
+            }
+          },
+          "unmet_payment_condition": {
+            "value": true,
+            "confidence": 0.985,
+            "probabilities": {
+              "yes": 0.9927129480612696,
+              "no": 0.00728705193873036
+            }
+          },
+          "version_attention": {
+            "value": false,
+            "confidence": 0.99,
+            "probabilities": {
+              "yes": 0.00509545646131504,
+              "no": 0.994904543538685
+            }
+          }
+        },
+        "warnings": [
+          {
+            "field": "payment_clause",
+            "code": "list_limit_reached",
+            "reason": "The bounded read may omit additional source clauses."
+          },
+          {
+            "field": "production_clause",
+            "code": "not_located",
+            "reason": "verification_rejected"
+          },
+          {
+            "field": "version_clause",
+            "code": "not_located",
+            "reason": null
+          }
+        ]
+      }
+    ],
+    "rerank": {
+      "status": "completed",
+      "query": "Do the quotations establish delivered cost and receipt by 2026-12-05? What should each supplier clarify?",
+      "results": [
+        {
+          "documentId": "quote-a",
+          "action": "use",
+          "reason": null,
+          "relevanceScore": 0.9801,
+          "documentScore": 0.987,
+          "levels": {
+            "answers": 0.9801,
+            "elsewhere": 0.0069,
+            "different_case": 0.0088,
+            "unrelated": 0.0042
+          }
+        },
+        {
+          "documentId": "quote-b",
+          "action": "use",
+          "reason": null,
+          "relevanceScore": 0.9773,
+          "documentScore": 0.9868,
+          "levels": {
+            "answers": 0.9773,
+            "elsewhere": 0.0095,
+            "different_case": 0.0098,
+            "unrelated": 0.0034
+          }
+        },
+        {
+          "documentId": "rfq",
+          "action": "use",
+          "reason": null,
+          "relevanceScore": 0.7927,
+          "documentScore": 0.8258,
+          "levels": {
+            "answers": 0.7927,
+            "elsewhere": 0.0331,
+            "different_case": 0.0658,
+            "unrelated": 0.1084
+          }
+        }
+      ]
+    },
+    "grounding": {
+      "status": "not_requested",
+      "text": "",
+      "verdict": null,
+      "grounded": null,
+      "claims": []
+    },
+    "usage": {
+      "newCredits": 0,
+      "referenceCostUsd": 0,
+      "calls": [
+        {
+          "endpoint": "compare",
+          "requestId": "a0e4f72e-c5f4-4bd9-8afa-500bdfb0eba7",
+          "transport": "cache",
+          "credits": 0,
+          "referenceCostUsd": 0,
+          "elapsedMs": 0,
+          "costBasis": "reference",
+          "modelMs": "201.632517",
+          "originalAccountCredits": 9
+        },
+        {
+          "endpoint": "fill",
+          "requestId": "b685056e-a5be-4faf-bb02-51fc07be8b16",
+          "transport": "cache",
+          "credits": 0,
+          "referenceCostUsd": 0,
+          "elapsedMs": 0,
+          "costBasis": "reference",
+          "modelMs": "95.824035",
+          "originalAccountCredits": 4
+        },
+        {
+          "endpoint": "fill",
+          "requestId": "eccc03b4-7394-4897-8e9a-2237cc5a7e1b",
+          "transport": "cache",
+          "credits": 0,
+          "referenceCostUsd": 0,
+          "elapsedMs": 0,
+          "costBasis": "reference",
+          "modelMs": "125.827487",
+          "originalAccountCredits": 6
+        },
+        {
+          "endpoint": "rerank",
+          "requestId": "717e86bc-247f-4ee8-a59e-defd2b85d0ea",
+          "transport": "cache",
+          "credits": 0,
+          "referenceCostUsd": 0,
+          "elapsedMs": 0,
+          "costBasis": "reference",
+          "modelMs": "33.652191",
+          "originalAccountCredits": 2
+        }
+      ]
+    },
+    "limitations": [
+      "Review aid using supplied sources; not a purchase approval or external truth verification.",
+      "Different quotations, revisions and requirements may have different scope. A flagged difference needs clarification, not an automatic contradiction verdict.",
+      "No currency/unit conversion, landed-cost calculation or supplier ranking is performed.",
+      "Missing evidence is not fabricated; a clean result does not establish that every commercial risk was found."
+    ],
+    "revision": "b4780728648878edb56981df0f8fd51b2b6243475de159fa072c13d5cf0076ee"
+  }
+}

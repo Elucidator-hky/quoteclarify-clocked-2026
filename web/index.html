@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ec">
+  <title>QuoteClarify — Read the terms before choosing the price</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="QuoteClarify home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 7h10v10h-5l-5 7V7Zm13 0h7v10h-4l-3 5V7Z" fill="currentColor"/></svg></span>QuoteClarify<span class="brand-tag">BUYER'S DESK</span></a>
+    <div class="header-right"><button class="text-button" id="how-button" type="button">How it works <span aria-hidden="true">↗</span></button><span class="service-state" id="service-state"><span class="status-dot"></span><span>Checking service</span></span></div>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">A CLEARER NEXT CONVERSATION</p><h1 id="page-title">Compare the promises.<br><em>Then compare the price.</em></h1><p class="intro-copy">Turn a buyer's request and two supplier quotes into the questions you need answered — with the original terms beside them.</p></div>
+      <div class="intro-note"><span class="mini-label">THE OUTPUT</span><p>A clarification brief<br>you can actually send.</p><span>Different terms. Missing details.<br>No invented delivery promises.</span></div>
+    </section>
+
+    <div class="workspace">
+      <section class="input-panel" id="compose" aria-labelledby="input-title">
+        <div class="panel-heading"><div><span class="step-number">01</span><h2 id="input-title">Set out the terms</h2></div><button type="button" class="text-button quiet" id="clear-inputs">Start blank</button></div>
+        <div class="example-picker"><label for="example-select">Try a synthetic example</label><select id="example-select" data-testid="example-select"><option value="">Loading examples…</option></select><p class="sample-note" id="sample-note" hidden>Fictional buyer, suppliers and terms. Edit any text before analyzing.</p></div>
+        <form id="analysis-form" novalidate>
+          <div class="document-field"><div class="field-heading"><label for="rfq-text">Buyer's RFQ</label><span class="field-hint">The requirements to compare against</span></div><textarea id="rfq-text" name="rfq" data-testid="rfq-input" rows="5" required spellcheck="false" placeholder="Paste the item, quantity, budget, delivery destination and required receipt date. Include any comparison assumptions, such as an agreed exchange rate."></textarea></div>
+          <div class="quote-tabs" role="tablist" aria-label="Supplier quotations"><button type="button" role="tab" id="quote-a-tab" aria-controls="quote-a-panel" aria-selected="true" tabindex="0" data-quote-tab="a">Supplier A <span class="quote-fill" id="quote-a-fill"></span></button><button type="button" role="tab" id="quote-b-tab" aria-controls="quote-b-panel" aria-selected="false" tabindex="-1" data-quote-tab="b">Supplier B <span class="quote-fill" id="quote-b-fill"></span></button></div>
+          <div id="quote-a-panel" role="tabpanel" aria-labelledby="quote-a-tab" class="quote-panel"><label class="sr-only" for="quote-a-name">Supplier A name</label><input id="quote-a-name" class="supplier-name" value="Supplier A" maxlength="100" placeholder="Supplier A name"><label class="sr-only" for="quote-a-text">Supplier A quotation</label><textarea id="quote-a-text" name="quoteA" data-testid="quote-a-input" rows="6" required spellcheck="false" placeholder="Paste the original quotation, including currency, freight, lead time, payment conditions and any revisions."></textarea></div>
+          <div id="quote-b-panel" role="tabpanel" aria-labelledby="quote-b-tab" class="quote-panel" hidden><label class="sr-only" for="quote-b-name">Supplier B name</label><input id="quote-b-name" class="supplier-name" value="Supplier B" maxlength="100" placeholder="Supplier B name"><label class="sr-only" for="quote-b-text">Supplier B quotation</label><textarea id="quote-b-text" name="quoteB" data-testid="quote-b-input" rows="6" required spellcheck="false" placeholder="Paste the second original quotation. Different currencies and conditional dates should remain as written."></textarea></div>
+          <div class="document-field focus-field"><label for="focus-input">What needs an answer?</label><input id="focus-input" data-testid="focus-input" value="Which terms need clarification before I can compare delivered cost and receipt dates?" maxlength="1000"><p class="field-help">Your question orders the source documents to read first.</p></div>
+          <details class="note-input"><summary>Have a draft buyer note? <span>Optional</span></summary><label class="sr-only" for="initial-summary">Draft buyer note to verify</label><textarea id="initial-summary" data-testid="initial-summary" rows="3" maxlength="2000" placeholder="For example, a draft recommendation or claims you want checked. The note will be assessed against your supplied sources."></textarea></details>
+          <div class="form-error" id="form-error" role="alert" hidden></div>
+          <button class="primary-button analyze-button" id="analyze-button" data-testid="analyze-button" type="submit"><span>Build clarification brief</span><span aria-hidden="true">↗</span></button>
+          <p class="input-footnote">Analysis uses your server's Clocked connection. Requests consume credits; no automatic paid upgrade.</p>
+        </form>
+      </section>
+
+      <section class="output-panel" aria-labelledby="output-title" aria-busy="false" id="output-panel">
+        <div class="panel-heading output-heading"><div><span class="step-number">02</span><h2 id="output-title">Your clarification brief</h2></div><span class="run-label" id="run-label">NOT ANALYZED</span></div>
+        <div class="stale-notice" id="stale-notice" role="status" hidden><span>Inputs have changed. This brief belongs to the previous input.</span><button type="button" id="reanalyze-button">Analyze again ↗</button></div>
+        <div class="run-progress" id="run-progress" role="status" aria-live="polite" hidden><div class="progress-top"><span class="spinner" aria-hidden="true"></span><div><strong id="progress-title">Preparing analysis</strong><p id="progress-detail">Waiting for the server to accept this request.</p></div></div><div class="progress-track"><div id="progress-fill"></div></div><div class="progress-stages"><span data-stage="compare">Compare <small>Identify differences</small></span><span data-stage="fill">Read terms <small>Preserve conditions</small></span><span data-stage="rerank">Rerank <small>Find relevant terms</small></span><span data-stage="grounding">Verify <small>Check the draft note</small></span></div></div>
+        <div class="run-error" id="run-error" role="alert" hidden></div>
+        <div class="empty-state" id="empty-state"><svg aria-hidden="true" viewBox="0 0 100 100"><rect x="15" y="17" width="44" height="59" rx="3"/><path d="M26 32h20M26 42h20M26 52h11"/><rect x="43" y="32" width="42" height="51" rx="3"/><path d="M54 47h20M54 57h20M54 67h9"/></svg><h3>The right question is<br>worth more than a guess.</h3><p>Add your RFQ and two quotes, or load an example.<br>Your analysis and source-backed questions will appear here.</p><div class="empty-legend"><span>01 Read the differences</span><span>02 Check the source</span><span>03 Ask the supplier</span></div></div>
+        <div id="results" hidden>
+          <div class="result-topline"><p id="result-intro"></p><div class="usage-strip" id="usage-strip"></div></div>
+          <div class="output-tabs" role="tablist" aria-label="Analysis views"><button type="button" role="tab" id="questions-tab" aria-controls="questions-panel" aria-selected="true" data-output-tab="questions">Questions <span id="question-count"></span></button><button type="button" role="tab" id="differences-tab" aria-controls="differences-panel" aria-selected="false" tabindex="-1" data-output-tab="differences">Terms & evidence</button><button type="button" role="tab" id="verification-tab" aria-controls="verification-panel" aria-selected="false" tabindex="-1" data-output-tab="verification">Check my note</button></div>
+          <section id="questions-panel" role="tabpanel" aria-labelledby="questions-tab"><div class="section-caption"><span>WHAT TO ASK NEXT</span><button type="button" id="copy-brief" class="secondary-button" data-testid="copy-brief">Copy brief</button></div><div id="clarifications" data-testid="clarifications"></div><div class="brief-footer"><p>The questions are a draft for your review. Nothing is sent to suppliers.</p><button type="button" class="text-button" id="download-brief" data-testid="download-brief">Download brief <span aria-hidden="true">↓</span></button></div></section>
+          <section id="differences-panel" role="tabpanel" aria-labelledby="differences-tab" hidden><div class="section-caption"><span>QUOTE TERMS, SIDE BY SIDE</span></div><p class="view-intro">Alternative offers can have different terms without either supplier being wrong. Missing and conditional terms stay visible.</p><div id="term-reviews" data-testid="term-reviews"></div><div id="comparisons" data-testid="comparisons"></div><details class="retrieval-details" open><summary>Source focus for your question</summary><p class="view-intro">Relevance picks what to read first. It does not prove a statement or recommend a supplier. All original sources remain available.</p><div id="retrieval" data-testid="retrieval"></div></details></section>
+          <section id="verification-panel" role="tabpanel" aria-labelledby="verification-tab" hidden><div class="section-caption"><span>CHECK BEFORE YOU RECOMMEND</span></div><p class="view-intro">Check the claims returned by Verify against your supplied sources. The API may omit statements: your original note remains visible and is never exported as a whole. Unsupported or unlocated claims stay unresolved.</p><label for="review-summary" class="field-label">Draft buyer note</label><textarea id="review-summary" data-testid="review-summary" rows="5" maxlength="2000" placeholder="Write the claims you would put in a buying recommendation. This does not change either supplier's quotation."></textarea><div class="verify-actions"><span id="verify-hint">Checks use the sources from this analysis.</span><button type="button" class="secondary-button" id="verify-note" data-testid="verify-note">Verify this note ↗</button></div><div id="verification-results" data-testid="verification-results"></div></section>
+          <details class="run-details"><summary>Analysis details</summary><div id="analysis-details"></div></details>
+        </div>
+      </section>
+    </div>
+    <footer class="site-footer"><span>QuoteClarify <span aria-hidden="true">/</span> Built for the next supplier conversation.</span><span>Source support is not independent verification.</span></footer>
+  </main>
+
+  <dialog id="evidence-dialog" aria-labelledby="evidence-title"><div class="dialog-header"><div><p class="eyebrow">ORIGINAL SOURCE</p><h2 id="evidence-title">Source text</h2></div><button type="button" class="icon-button" id="close-evidence" aria-label="Close source">×</button></div><div id="evidence-status"></div><div id="evidence-quote"></div><pre id="evidence-source" tabindex="0"></pre></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><h2 id="help-title">From quote to conversation</h2><button type="button" class="icon-button" id="close-help" aria-label="Close help">×</button></div><ol class="help-steps"><li><strong>Bring the original terms.</strong> Supply one RFQ, two quotes and the question you need answered.</li><li><strong>Read the differences with their sources.</strong> Clocked Compare and Rerank bring conflicting, conditional and relevant clauses into view.</li><li><strong>Check your buyer note.</strong> Verify separates supported claims from missing or contradictory evidence.</li><li><strong>Take the clarification brief.</strong> Copy the questions for your own review. No email, order or supplier decision is made for you.</li></ol><p class="field-help">Use public, synthetic or appropriately authorized text. API credentials remain on the server. Results describe supplied documents, not external supplier reliability.</p></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
