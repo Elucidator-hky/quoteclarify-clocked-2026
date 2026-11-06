@@ -15,8 +15,8 @@ def handler(route):
     if route.request.method=='POST':posts.append(path)
     if path=='status':body={'configured':True,'externalMode':'test','cashOverageEnabled':False,'budget':{'remainingCredits':1000}}
     elif path=='examples':body={'synthetic':True,'examples':[{'id':'retained-fill','title':'Retained actual Fill response (TEST playback)','input':result['input']}]}
-    elif path=='analyze':body={'jobId':'test-fill','status':'queued','pollUrl':'/api/jobs/test-fill'}
-    elif path=='jobs/test-fill':
+    elif path=='analyze':body={'jobId':'55555555-5555-4555-8555-555555555555','status':'queued','pollUrl':'/api/jobs/55555555-5555-4555-8555-555555555555'}
+    elif path=='jobs/55555555-5555-4555-8555-555555555555':
         polls[0]+=1
         body={'status':'running','stage':'fill','progress':record['progress'][:2],'result':None,'error':None} if polls[0]==1 else record
     else:route.fulfill(status=404,json={'error':{'message':'No POST export in this read-only rendering check'}});return

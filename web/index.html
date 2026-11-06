@@ -33,12 +33,13 @@
           <details class="note-input"><summary>Have a draft buyer note? <span>Optional</span></summary><label class="sr-only" for="initial-summary">Draft buyer note to verify</label><textarea id="initial-summary" data-testid="initial-summary" rows="3" maxlength="2000" placeholder="For example, a draft recommendation or claims you want checked. The note will be assessed against your supplied sources."></textarea></details>
           <div class="form-error" id="form-error" role="alert" hidden></div>
           <button class="primary-button analyze-button" id="analyze-button" data-testid="analyze-button" type="submit"><span>Build clarification brief</span><span aria-hidden="true">↗</span></button>
-          <p class="input-footnote">Analysis uses your server's Clocked connection. Requests consume credits; no automatic paid upgrade.</p>
+          <p class="input-footnote">Analysis uses your server's Clocked connection. Requests consume credits; no automatic paid upgrade. This tab keeps a refresh recovery copy; Start blank clears it.</p>
         </form>
       </section>
 
       <section class="output-panel" aria-labelledby="output-title" aria-busy="false" id="output-panel">
         <div class="panel-heading output-heading"><div><span class="step-number">02</span><h2 id="output-title">Your clarification brief</h2></div><span class="run-label" id="run-label">NOT ANALYZED</span></div>
+        <div class="recovery-notice" id="recovery-notice" role="status" aria-live="polite" hidden><p id="recovery-message"></p><div><button type="button" class="text-button" id="retry-recovery" hidden>Retry recovery</button><button type="button" class="text-button" id="discard-recovery">Discard saved review, keep inputs</button></div></div>
         <div class="stale-notice" id="stale-notice" role="status" hidden><span>Inputs have changed. This brief belongs to the previous input.</span><button type="button" id="reanalyze-button">Analyze again ↗</button></div>
         <div class="run-progress" id="run-progress" role="status" aria-live="polite" hidden><div class="progress-top"><span class="spinner" aria-hidden="true"></span><div><strong id="progress-title">Preparing analysis</strong><p id="progress-detail">Waiting for the server to accept this request.</p></div></div><div class="progress-track"><div id="progress-fill"></div></div><div class="progress-stages"><span data-stage="compare">Compare <small>Identify differences</small></span><span data-stage="fill">Read terms <small>Preserve conditions</small></span><span data-stage="rerank">Rerank <small>Find relevant terms</small></span><span data-stage="grounding">Verify <small>Check the draft note</small></span></div></div>
         <div class="run-error" id="run-error" role="alert" hidden></div>

@@ -18,7 +18,7 @@ input_data = {'rfq': {'id':'rfq','title':'Buyer RFQ','text':'SYNTHETIC RFQ: deli
 quote = 'Freight USD 90.'
 span = {'documentId':'quote-a','quote':quote,'start':source.index(quote),'end':source.index(quote)+len(quote),'integrity':'exact'}
 rfq_span = {'documentId':'rfq','quote':input_data['rfq']['text'],'start':0,'end':len(input_data['rfq']['text']),'integrity':'exact'}
-result = {'analysisId':'test-analysis','revision':'test-revision','inputDigest':'test-input','createdAt':'2026-11-04T03:00:00Z','input':input_data,'documents':[dict(input_data['rfq'],role='rfq',supplier=None), *[dict(q,role='quote') for q in input_data['quotes']]],'comparisons':[{'id':'p1','a':'rfq','b':'quote-a','relation':'conflicting','findingIds':['f1']}], 'findings':[{'id':'f1','pairId':'p1','kind':'value','label':'Delivery terms','a':rfq_span,'b':span,'sourceIntegrity':'exact'}], 'rerank':{'status':'completed','query':input_data['focus'],'results':[{'documentId':'quote-a','action':'use','reason':None},{'documentId':'quote-b','action':'skip','reason':'different_case'}]},'grounding':{'status':'not_requested','text':'','claims':[]},'clarifications':[{'id':'q1','supplierId':'quote-a','supplier':'Supplier A','findingId':'f1','text':'Please confirm the arrival date. <img src=x onerror="window.injected=true">','sources':[span],'status':'ready'},{'id':'q2','supplierId':'quote-b','supplier':'Supplier B','findingId':'f2','text':'Can you confirm delivered pricing against the RFQ?','sources':[rfq_span],'status':'needs_confirmation'}], 'usage':{'newCredits':0,'calls':[{'endpoint':'compare','transport':'cache','credits':0,'elapsedMs':3},{'endpoint':'rerank','transport':'cache','credits':0,'elapsedMs':2}]},'limitations':['SYNTHETIC FRONTEND TEST RESPONSE. Not a live API result.']}
+result = {'analysisId':'33333333-3333-4333-8333-333333333333','revision':'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','inputDigest':'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','createdAt':'2026-11-04T03:00:00Z','input':input_data,'documents':[dict(input_data['rfq'],role='rfq',supplier=None), *[dict(q,role='quote') for q in input_data['quotes']]],'comparisons':[{'id':'p1','a':'rfq','b':'quote-a','relation':'conflicting','findingIds':['f1']}], 'findings':[{'id':'f1','pairId':'p1','kind':'value','label':'Delivery terms','a':rfq_span,'b':span,'sourceIntegrity':'exact'}], 'rerank':{'status':'completed','query':input_data['focus'],'results':[{'documentId':'quote-a','action':'use','reason':None},{'documentId':'quote-b','action':'skip','reason':'different_case'}]},'grounding':{'status':'not_requested','text':'','claims':[]},'clarifications':[{'id':'q1','supplierId':'quote-a','supplier':'Supplier A','findingId':'f1','text':'Please confirm the arrival date. <img src=x onerror="window.injected=true">','sources':[span],'status':'ready'},{'id':'q2','supplierId':'quote-b','supplier':'Supplier B','findingId':'f2','text':'Can you confirm delivered pricing against the RFQ?','sources':[rfq_span],'status':'needs_confirmation'}], 'usage':{'newCredits':0,'calls':[{'endpoint':'compare','transport':'cache','credits':0,'elapsedMs':3},{'endpoint':'rerank','transport':'cache','credits':0,'elapsedMs':2}]},'limitations':['SYNTHETIC FRONTEND TEST RESPONSE. Not a live API result.']}
 posts=[]; jobs={}; checks=[]; errors=[]; mode={'fail':False,'overage':False}
 def check(name, condition=True):
     assert condition, name
@@ -31,21 +31,21 @@ def handler(route):
     elif path=='examples': body={'synthetic':True,'examples':[{'id':'synthetic-test','title':'Synthetic frontend check','input':input_data}]}
     elif path=='analyze':
         current=copy.deepcopy(result); current['input']=request.post_data_json
-        jobs['test-job']={'result':current,'polls':0,'failed':mode['fail']}
-        status=202; body={'jobId':'test-job','status':'queued','pollUrl':'/api/jobs/test-job'}
+        jobs['11111111-1111-4111-8111-111111111111']={'result':current,'polls':0,'failed':mode['fail']}
+        status=202; body={'jobId':'11111111-1111-4111-8111-111111111111','status':'queued','pollUrl':'/api/jobs/11111111-1111-4111-8111-111111111111'}
     elif path=='verify':
         payload=request.post_data_json; current=copy.deepcopy(result)
-        current['analysisId']='verified-test';current['revision']='verified-revision';current['input']['draftSummary']=payload['draftSummary']
+        current['analysisId']='44444444-4444-4444-8444-444444444444';current['revision']='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';current['input']['draftSummary']=payload['draftSummary']
         current['grounding']={'status':'needs_review','text':payload['draftSummary'],'reviewScope':'returned_claims_only','originalDraftIncluded':False,'claims':[{'id':'c1','text':'Freight is USD 90.','verdict':'supported','supported':0.99,'counted':True,'ready':True,'evidence':span},{'id':'c2','text':'Arrival is confirmed.','verdict':'not_stated','supported':0,'counted':True,'ready':False,'evidence':None}]}
-        jobs['verify-job']={'result':current,'polls':0,'failed':False}
-        status=202;body={'jobId':'verify-job','status':'queued','pollUrl':'/api/jobs/verify-job'}
+        jobs['22222222-2222-4222-8222-222222222222']={'result':current,'polls':0,'failed':False}
+        status=202;body={'jobId':'22222222-2222-4222-8222-222222222222','status':'queued','pollUrl':'/api/jobs/22222222-2222-4222-8222-222222222222'}
     elif path.startswith('jobs/'):
         job=jobs[path.split('/')[-1]];job['polls']+=1
-        if path=='jobs/test-job' and job['polls']==1 and not job['failed']:
+        if path=='jobs/11111111-1111-4111-8111-111111111111' and job['polls']==1 and not job['failed']:
             route.fulfill(status=503,content_type='application/json',body=json.dumps({'error':{'code':'temporarily_unavailable','message':'SYNTHETIC transient poll failure'}})); return
-        if job['polls']<=2: body={'jobId':'test','status':'running','stage':'compare','progress':[],'error':None,'result':None}
-        elif job['failed']: body={'jobId':'test','status':'failed','stage':'failed','progress':[{'endpoint':'compare','transport':'cache','credits':0}],'error':{'code':'upstream_unavailable','message':'Synthetic upstream failure','retryable':False},'result':None}
-        else: body={'jobId':'test','status':'succeeded','stage':'complete','progress':job['result']['usage']['calls'],'error':None,'result':job['result']}
+        if job['polls']<=2: body={'jobId':path.split('/')[-1],'status':'running','stage':'compare','progress':[],'error':None,'result':None}
+        elif job['failed']: body={'jobId':path.split('/')[-1],'status':'failed','stage':'failed','progress':[{'endpoint':'compare','transport':'cache','credits':0}],'error':{'code':'upstream_unavailable','message':'Synthetic upstream failure','retryable':False},'result':None}
+        else: body={'jobId':path.split('/')[-1],'status':'succeeded','stage':'complete','progress':job['result']['usage']['calls'],'error':None,'result':job['result']}
     elif path=='export': body={'analysisId':'test','revision':'test','text':'SYNTHETIC TEST BRIEF\nSupplier A: Please confirm arrival.\nSupported claim: Freight is USD 90.\n','filename':'synthetic-test-brief.txt','contentType':'text/plain;charset=utf-8','includedMemo':True,'includedClaimIds':['c1'],'originalDraftIncluded':False}
     else: status=404;body={'error':{'message':'Unexpected mocked endpoint'}}
     route.fulfill(status=status,content_type='application/json',body=json.dumps(body))
@@ -62,7 +62,7 @@ with sync_playwright() as p:
     check('Hidden empty quote switches to visible field without native focus error',not posts)
     page.locator('#example-select').select_option('synthetic-test');page.locator('#analyze-button').click();expect(page.locator('#run-progress')).to_be_visible();expect(page.locator('#results')).to_be_visible(timeout=10000)
     check('Single analysis POST preserves all original sample metadata',posts[0]['payload']==input_data)
-    check('Transient poll 503 resumes same job using GET only',jobs['test-job']['polls']==3 and len(posts)==1)
+    check('Transient poll 503 resumes same job using GET only',jobs['11111111-1111-4111-8111-111111111111']['polls']==3 and len(posts)==1)
     expect(page.locator('#run-label')).to_have_text('TEST RESPONSE');check('Test transport never presented as live')
     check('Untrusted result text escaped',page.locator('#clarifications img').count()==0 and page.evaluate('window.injected !== true'))
     expect(page.locator('[data-question-id="q2"]')).to_contain_text('does not assert');check('Single-sided requirement is a question, not alleged omission')
@@ -74,7 +74,7 @@ with sync_playwright() as p:
     page.locator('#questions-tab').click()
     with page.expect_download() as download: page.locator('#download-brief').click()
     download.value.save_as(out/'synthetic-test-brief.txt')
-    check('Download uses server export with current revision',posts[-1]['path']=='export' and posts[-1]['payload']['expectedRevision']=='verified-revision')
+    check('Download uses server export with current revision',posts[-1]['path']=='export' and posts[-1]['payload']['expectedRevision']=='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb')
     page.screenshot(path=str(out/'desktop-result.png'),full_page=True)
     page.locator('#rfq-text').fill(input_data['rfq']['text']+' EDITED');expect(page.locator('#stale-notice')).to_be_visible();expect(page.locator('#download-brief')).to_be_disabled();expect(page.locator('#verify-note')).to_be_disabled();check('Source edit blocks stale export and memo-only verification')
     page.set_viewport_size({'width':375,'height':900});check('Mobile width has no horizontal page overflow',page.evaluate('document.documentElement.scrollWidth <= innerWidth'))

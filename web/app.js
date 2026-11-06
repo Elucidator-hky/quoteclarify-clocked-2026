@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const state = { examples: [], service: null, result: null, busy: false, job: null, memo: '', inputMeta: null, unresolvedRequest: false, evidence: new Map(), toastTimer: null };
+const state = { examples: [], service: null, result: null, busy: false, restoring: true, restoredResult: false, job: null, memo: '', inputMeta: null, unresolvedRequest: false, evidence: new Map(), toastTimer: null };
 const BASE_FOCUS = 'Which terms need clarification before I can compare delivered cost and receipt dates?';
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const arr = (value) => Array.isArray(value) ? value : [];
@@ -8,6 +8,104 @@ const human = (value) => String(value || 'unavailable').replace(/[_-]/g, ' ');
 const setText = (id, text) => { $(id).textContent = text; };
 const show = (id, visible = true) => { $(id).hidden = !visible; };
 const canonical = (obj) => JSON.stringify(obj, (_key, value) => value && typeof value === 'object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))) : value);
+const RECOVERY_KEY = 'quoteclarify.review.v1';
+const validId = (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+let recovery = null;
+let initialInputsEdited = false;
+
+function recoveryNotice(message, retry = false, discard = true) {
+  setText('recovery-message', message);
+  show('recovery-notice', !!message);
+  show('retry-recovery', retry);
+  show('discard-recovery', discard);
+}
+// Drafts may be incomplete while being edited. Analysis validation still happens on submit.
+function validDraft(input) {
+  if (!input || !Array.isArray(input.quotes) || input.quotes.length !== 2 || typeof input.focus !== 'string' || typeof input.draftSummary !== 'string') return false;
+  return [input.rfq, ...input.quotes].every((doc, i) => doc && ['id', 'title', 'text'].every((key) => typeof doc[key] === 'string') && (!i || typeof doc.supplier === 'string'));
+}
+function persistRecovery() {
+  if (!recovery) return;
+  recovery.currentInput = inputValue();
+  try { sessionStorage.setItem(RECOVERY_KEY, JSON.stringify(recovery)); }
+  catch { recoveryNotice('This browser cannot save the current review for refresh. Keep this page open or download the brief.', false, false); }
+}
+function forgetRecovery() {
+  recovery = null;
+  state.job = null; state.result = null; state.restoredResult = false; state.unresolvedRequest = false;
+  state.evidence.clear(); show('results', false); show('run-error', false); show('empty-state');
+  setText('run-label', 'NOT ANALYZED'); $('run-label').classList.remove('live');
+  recoveryNotice('');
+  try { sessionStorage.removeItem(RECOVERY_KEY); }
+  catch {
+    try { sessionStorage.setItem(RECOVERY_KEY, ''); }
+    catch { recoveryNotice('The saved review could not be cleared from this tab. Clear this site’s browser storage before refreshing.', false, false); }
+  }
+}
+function readRecovery() {
+  let raw;
+  try { raw = sessionStorage.getItem(RECOVERY_KEY); }
+  catch { recoveryNotice('Refresh recovery is unavailable in this browser. Keep this page open or download your brief.', false, false); return null; }
+  if (!raw) return null;
+  try {
+    if (raw.length > 256000) throw new Error('Oversized saved review.');
+    const saved = JSON.parse(raw);
+    if (saved.version !== 1 || !validDraft(saved.currentInput) || !['analyze', 'verify'].includes(saved.kind) || !['requesting', 'running', 'complete', 'failed', 'uncertain'].includes(saved.phase)) throw new Error('Invalid saved review.');
+    if (saved.jobId !== null && !validId(saved.jobId)) throw new Error('Invalid job reference.');
+    if (saved.analysisId !== null && (!validId(saved.analysisId) || !validDraft(saved.analysisInput))) throw new Error('Invalid analysis reference.');
+    if (saved.jobId && !validDraft(saved.requestInput)) throw new Error('Missing original source.');
+    if (saved.phase === 'complete' && !saved.analysisId) throw new Error('Missing completed review reference.');
+    if (saved.phase === 'running' && !saved.jobId) throw new Error('Missing confirmed job reference.');
+    return saved;
+  } catch {
+    forgetRecovery();
+    recoveryNotice('The saved review could not be read. Start blank or choose an example; no analysis was sent.', false, false);
+    return null;
+  }
+}
+function checkRecoveredResult(result, expectedInput, expectedId = null) {
+  const invalid = (message) => Object.assign(new Error(message), { invalidRecovery: true });
+  if (!validDraft(expectedInput) || !result || !validId(result.analysisId) || (expectedId && result.analysisId !== expectedId) || typeof result.revision !== 'string' || !/^[0-9a-f]{64}$/i.test(result.revision) || !validDraft(result.input) || canonical(result.input) !== canonical(expectedInput)) throw invalid('The saved result does not match the original review sources.');
+  const docs = [result.input.rfq, ...result.input.quotes];
+  if (!Array.isArray(result.documents) || result.documents.length !== 3 || docs.some((doc) => result.documents.filter((source) => source.id === doc.id && source.text === doc.text).length !== 1)) throw invalid('The saved result is missing its original source text.');
+  return result;
+}
+async function restoreReview(saved) {
+  if (!saved) return;
+  recovery = saved; state.restoring = true; updateButtons();
+  fillInput(saved.currentInput); $('example-select').value = '';
+  recoveryNotice('Restoring this tab’s review. No new analysis is being requested.', false, false);
+  try {
+    if (saved.phase === 'complete' && saved.analysisId) {
+      state.result = checkRecoveredResult(await api('/api/analyses/' + saved.analysisId), saved.analysisInput, saved.analysisId);
+    } else if (saved.jobId && ['running', 'uncertain'].includes(saved.phase)) {
+      state.job = { id: saved.jobId, pollUrl: '/api/jobs/' + saved.jobId, input: saved.requestInput, kind: saved.kind };
+      setBusy(true);
+      state.result = checkRecoveredResult(await pollJob(saved.jobId, state.job.pollUrl, saved.kind), saved.requestInput);
+    } else if (saved.phase === 'requesting' || saved.phase === 'uncertain') {
+      state.unresolvedRequest = true;
+      recoveryNotice('The previous request was not confirmed. No new analysis was sent. Check the server request history before discarding this saved review.', false, true);
+      return;
+    } else {
+      if (saved.analysisId) state.result = checkRecoveredResult(await api('/api/analyses/' + saved.analysisId), saved.analysisInput, saved.analysisId);
+      recoveryNotice(saved.error || 'The previous review stopped. Your inputs are kept; you can start a new analysis.', false, true);
+      if (!state.result) return;
+    }
+    state.restoredResult = true; state.unresolvedRequest = false;
+    recovery = { ...saved, phase: 'complete', analysisId: state.result.analysisId, analysisInput: state.result.input };
+    renderResult();
+    recoveryNotice(saved.phase === 'failed' ? 'The previous attempt stopped. Its earlier review is restored; current edits still need review before export.' : 'Review restored. Your current edits are kept; changed sources or notes still need review before export.', false, true);
+  } catch (error) {
+    state.result = null; state.restoredResult = false; show('results', false); show('empty-state');
+    const uncertain = !error.invalidRecovery && !error.confirmedJobFailure && !(error.confirmedResponse && error.status < 500 && error.status !== 429) && !!(saved.jobId || saved.analysisId);
+    state.unresolvedRequest = uncertain;
+    recovery.phase = uncertain ? (saved.phase === 'complete' ? 'complete' : 'uncertain') : 'failed'; recovery.error = error.message;
+    if (!uncertain) { recovery.jobId = null; recovery.analysisId = null; recovery.analysisInput = null; }
+    recoveryNotice((uncertain ? 'The existing review could not be reached. Retry only checks that review; no new analysis was sent. ' : 'The saved review could not be recovered. Your current inputs are kept and you may start a new analysis. ') + error.message, uncertain, true);
+  } finally {
+    state.restoring = false; setBusy(false); persistRecovery();
+  }
+}
 
 function inputValue() {
   return {
@@ -24,14 +122,16 @@ function inputIsStale() { return !!state.result && baseSignature(inputValue()) !
 function memoIsStale() { return !!state.result && state.memo !== (state.result.input?.draftSummary || ''); }
 function canRun() { return !!state.service?.configured && state.service.cashOverageEnabled === false && Number(state.service.budget?.remainingCredits) > 0; }
 function updateButtons() {
-  $('analyze-button').disabled = state.busy || !canRun() || state.unresolvedRequest;
-  $('example-select').disabled = state.busy;
-  $('clear-inputs').disabled = state.busy;
+  const locked = state.busy || state.restoring;
+  $('analyze-button').disabled = locked || !canRun() || state.unresolvedRequest;
+  $('example-select').disabled = locked;
+  $('clear-inputs').disabled = locked;
+  $('retry-recovery').disabled = $('discard-recovery').disabled = locked;
   const stale = inputIsStale();
   const memoStale = memoIsStale();
-  $('copy-brief').disabled = $('download-brief').disabled = !state.result || state.busy || stale || memoStale;
-  $('verify-note').disabled = !state.result || state.busy || stale || !state.memo.trim() || !canRun() || state.unresolvedRequest;
-  $('reanalyze-button').disabled = state.busy || !canRun() || state.unresolvedRequest;
+  $('copy-brief').disabled = $('download-brief').disabled = !state.result || locked || state.unresolvedRequest || stale || memoStale;
+  $('verify-note').disabled = !state.result || locked || stale || !state.memo.trim() || !canRun() || state.unresolvedRequest;
+  $('reanalyze-button').disabled = locked || !canRun() || state.unresolvedRequest;
   show('stale-notice', !!state.result && (stale || memoStale));
   if (state.result && (stale || memoStale)) {
     $('stale-notice').querySelector('span').textContent = stale ? 'Inputs have changed. This brief belongs to the previous input.' : 'Your buyer note changed. Verify this version before exporting.';
@@ -98,22 +198,23 @@ function setMemo(text, source) {
   if (memoIsStale()) $('verification-results').innerHTML = '<p class="unavailable-message">Your note has changed. Verify this version to see its source support.</p>';
   else if (state.result) renderGrounding();
   updateButtons();
+  persistRecovery();
 }
 function fillInput(input, synthetic = false) {
   state.inputMeta = {rfq: {id: input.rfq?.id, title: input.rfq?.title}, quotes: arr(input.quotes).map(({id, title}) => ({id, title}))};
   $('rfq-text').value = input.rfq?.text || '';
   arr(input.quotes).slice(0, 2).forEach((quote, i) => { const letter = i ? 'b' : 'a'; $('quote-' + letter + '-text').value = quote.text || ''; $('quote-' + letter + '-name').value = quote.supplier || (i ? 'Supplier B' : 'Supplier A'); });
-  $('focus-input').value = input.focus || BASE_FOCUS;
+  $('focus-input').value = input.focus ?? BASE_FOCUS;
   setMemo(input.draftSummary || '', 'load');
   show('sample-note', synthetic);
   show('form-error', false);
   updateButtons();
 }
-async function loadExamples() {
+async function loadExamples(allowDefault = true) {
   try {
     const data = await api('/api/examples'); state.examples = arr(data.examples);
     $('example-select').innerHTML = '<option value="">Choose an example…</option>' + state.examples.map((example) => `<option value="${escapeHtml(example.id)}">${escapeHtml(example.title)}</option>`).join('');
-    if (state.examples.length && !['rfq-text', 'quote-a-text', 'quote-b-text'].some((id) => $(id).value)) {
+    if (allowDefault && state.examples.length && !['rfq-text', 'quote-a-text', 'quote-b-text'].some((id) => $(id).value)) {
       $('example-select').value = state.examples[0].id; fillInput(state.examples[0].input, true);
     }
   } catch { $('example-select').innerHTML = '<option value="">Examples unavailable — paste your own terms</option>'; }
@@ -170,7 +271,7 @@ async function pollJob(jobId, pollUrl, kind) {
   throw new Error(`The existing run ${jobId} has not completed within seven minutes. Its API work may still be running. No new analysis was started.`);
 }
 async function startRun(kind = 'analyze') {
-  if (state.busy || !canRun() || state.unresolvedRequest) return;
+  if (state.busy || state.restoring || !canRun() || state.unresolvedRequest) return;
   let input;
   try {
     input = inputValue(); validate(input);
@@ -179,15 +280,20 @@ async function startRun(kind = 'analyze') {
   } catch (error) { setText('form-error', error.message); show('form-error'); return; }
   show('form-error', false); show('run-error', false); setBusy(true); setText('run-label', kind === 'verify' ? 'CHECKING NOTE' : 'ANALYZING');
   state.job = { input, kind }; renderProgress({ stage: 'queued', progress: [] }, kind);
+  state.restoredResult = false;
+  recovery = { version: 1, currentInput: input, requestInput: input, kind, phase: 'requesting', jobId: null, analysisId: state.result?.analysisId || null, analysisInput: state.result?.input || null, error: null };
+  recoveryNotice(''); persistRecovery();
   if (kind === 'analyze') { show('results', false); show('empty-state', false); }
   let ack;
   try {
     const payload = kind === 'verify' ? { analysisId: state.result.analysisId, expectedRevision: state.result.revision, draftSummary: state.memo } : input;
     ack = await api(kind === 'verify' ? '/api/verify' : '/api/analyze', { method: 'POST', body: JSON.stringify(payload) });
-    if (!ack.jobId || typeof ack.pollUrl !== 'string' || !ack.pollUrl.startsWith('/api/jobs/')) throw new Error('The server did not return a trackable analysis job.');
+    if (!validId(ack.jobId) || ack.pollUrl !== '/api/jobs/' + ack.jobId) throw new Error('The server did not return a trackable analysis job.');
     state.job = { ...state.job, id: ack.jobId, pollUrl: ack.pollUrl };
+    recovery.jobId = ack.jobId; recovery.phase = 'running'; persistRecovery();
     const result = await pollJob(ack.jobId, ack.pollUrl, kind);
     state.result = result;
+    recovery.analysisId = result.analysisId; recovery.analysisInput = result.input; recovery.phase = 'complete';
     // Do not overwrite a note the user edited while the run was in flight.
     renderResult();
     await refreshStatus();
@@ -196,10 +302,12 @@ async function startRun(kind = 'analyze') {
     const unconfirmed = !ack && !error.confirmedResponse;
     const trackingUncertain = !!ack && !error.confirmedJobFailure;
     if (unconfirmed || trackingUncertain) state.unresolvedRequest = true;
+    recovery.phase = state.unresolvedRequest ? 'uncertain' : 'failed'; recovery.error = error.message;
+    if (!state.unresolvedRequest) recovery.jobId = null;
     showRunError(error, unconfirmed || trackingUncertain);
     if (kind === 'analyze') { state.result = null; show('results', false); }
     await refreshStatus();
-  } finally { setBusy(false); }
+  } finally { setBusy(false); persistRecovery(); }
 }
 
 function documentFor(id) { return arr(state.result?.documents).find((doc) => doc.id === id); }
@@ -279,6 +387,10 @@ function renderResult() {
   renderQuestions(); renderTermReviews(); renderComparisons(); renderRetrieval(); renderGrounding();
   const credits = Number(state.result.usage?.newCredits) || 0;
   $('usage-strip').innerHTML = `<span>${credits} new credits used</span><span>${calls.length} endpoint request${calls.length === 1 ? '' : 's'}</span><span>${calls.some((c) => ['cache', 'replay'].includes(c.transport)) ? 'Includes saved/replayed work' : 'No automatic retry'}</span>`;
+  if (state.restoredResult) {
+    setText('run-label', 'RESTORED REVIEW'); $('run-label').classList.remove('live');
+    $('usage-strip').innerHTML = '<span>Original run: ' + credits + ' credits</span><span>' + calls.length + ' original endpoint requests</span><span>No new analysis requested</span>';
+  }
   const details = [['Analysis', state.result.analysisId], ['Created', state.result.createdAt ? new Date(state.result.createdAt).toLocaleString() : 'Unavailable'], ['Source revision', state.result.revision], ['Memo status', human(state.result.grounding?.status)], ['New credits', String(credits)], ...calls.map((c) => [human(c.endpoint), `${human(c.transport)} · ${Number(c.elapsedMs) || 0} ms`])];
   $('analysis-details').innerHTML = '<dl>' + details.map(([key, value]) => `<dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd>`).join('') + '</dl>' + arr(state.result.limitations).map((line) => `<p class="field-help">${escapeHtml(line)}</p>`).join('');
   updateButtons();
@@ -297,7 +409,7 @@ function showEvidence(span) {
   requestAnimationFrame(() => $('evidence-source').querySelector('mark')?.scrollIntoView({ block: 'center' }));
 }
 async function exportBrief(mode) {
-  if (!state.result || state.busy || inputIsStale() || memoIsStale()) return;
+  if (!state.result || state.busy || state.restoring || state.unresolvedRequest || inputIsStale() || memoIsStale()) return;
   const button = $(mode === 'copy' ? 'copy-brief' : 'download-brief'); button.disabled = true;
   try {
     const data = await api('/api/export', { method: 'POST', body: JSON.stringify({ analysisId: state.result.analysisId, expectedRevision: state.result.revision, input: inputValue() }) });
@@ -321,11 +433,13 @@ $('verify-note').addEventListener('click', () => startRun('verify'));
 $('reanalyze-button').addEventListener('click', () => startRun(inputIsStale() ? 'analyze' : 'verify'));
 $('copy-brief').addEventListener('click', () => exportBrief('copy'));
 $('download-brief').addEventListener('click', () => exportBrief('download'));
-$('initial-summary').addEventListener('input', (event) => setMemo(event.target.value, 'initial'));
-$('review-summary').addEventListener('input', (event) => setMemo(event.target.value, 'review'));
-['rfq-text', 'quote-a-text', 'quote-b-text', 'quote-a-name', 'quote-b-name', 'focus-input'].forEach((id) => $(id).addEventListener('input', updateButtons));
-$('example-select').addEventListener('change', () => { const selected = state.examples.find((e) => e.id === $('example-select').value); if (selected) fillInput(selected.input, true); });
-$('clear-inputs').addEventListener('click', () => { fillInput({ rfq: { text: '' }, quotes: [{ text: '', supplier: 'Supplier A' }, { text: '', supplier: 'Supplier B' }], focus: BASE_FOCUS }); $('example-select').value = ''; selectTab('quote', 'a'); $('rfq-text').focus(); });
+$('initial-summary').addEventListener('input', (event) => { initialInputsEdited = true; setMemo(event.target.value, 'initial'); });
+$('review-summary').addEventListener('input', (event) => { initialInputsEdited = true; setMemo(event.target.value, 'review'); });
+['rfq-text', 'quote-a-text', 'quote-b-text', 'quote-a-name', 'quote-b-name', 'focus-input'].forEach((id) => $(id).addEventListener('input', () => { initialInputsEdited = true; updateButtons(); persistRecovery(); }));
+$('example-select').addEventListener('change', () => { const selected = state.examples.find((e) => e.id === $('example-select').value); if (selected) { forgetRecovery(); fillInput(selected.input, true); } });
+$('clear-inputs').addEventListener('click', () => { forgetRecovery(); fillInput({ rfq: { text: '' }, quotes: [{ text: '', supplier: 'Supplier A' }, { text: '', supplier: 'Supplier B' }], focus: BASE_FOCUS }); $('example-select').value = ''; selectTab('quote', 'a'); $('rfq-text').focus(); });
+$('retry-recovery').addEventListener('click', () => { if (recovery && !state.busy && !state.restoring) restoreReview(recovery); });
+$('discard-recovery').addEventListener('click', () => { forgetRecovery(); updateButtons(); toast('Saved review discarded. Your inputs are kept; no analysis was sent.'); });
 document.querySelectorAll('[data-quote-tab]').forEach((button) => { button.addEventListener('click', () => selectTab('quote', button.dataset.quoteTab)); button.addEventListener('keydown', (event) => tabKeyboard(event, 'quote')); });
 document.querySelectorAll('[data-output-tab]').forEach((button) => { button.addEventListener('click', () => selectTab('output', button.dataset.outputTab)); button.addEventListener('keydown', (event) => tabKeyboard(event, 'output')); });
 document.addEventListener('click', (event) => { const button = event.target.closest('[data-evidence]'); if (button) { const span = state.evidence.get(button.dataset.evidence); if (span) showEvidence(span); } });
@@ -333,5 +447,16 @@ $('close-evidence').addEventListener('click', () => $('evidence-dialog').close()
 $('how-button').addEventListener('click', () => $('help-dialog').showModal());
 $('close-help').addEventListener('click', () => $('help-dialog').close());
 [$('evidence-dialog'), $('help-dialog')].forEach((dialog) => dialog.addEventListener('click', (event) => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } }));
+async function initialize() {
+  const saved = readRecovery();
+  if (saved) { recovery = saved; fillInput(saved.currentInput); $('example-select').value = ''; }
+  await Promise.allSettled([refreshStatus(), loadExamples(false)]);
+  if (saved) await restoreReview(saved);
+  else {
+    state.restoring = false;
+    if (state.examples.length && !initialInputsEdited) { $('example-select').value = state.examples[0].id; fillInput(state.examples[0].input, true); }
+  }
+  updateButtons();
+}
 updateButtons();
-Promise.allSettled([refreshStatus(), loadExamples()]);
+initialize();
